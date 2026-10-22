@@ -1,0 +1,119 @@
+GUIA: PÔR O SITE DO FÁBIO LOURENÇO NO AR (TUDO NA OVHCLOUD)
+===========================================================
+
+O que vais ter no fim:
+  - o site num domínio .pt, com HTTPS;
+  - uma base de dados MySQL onde ficam todos os pedidos de avaliação;
+  - um painel privado (o-teu-dominio.pt/admin/) para ver os pedidos;
+  - o site pronto para aparecer no Google.
+
+Os preços e as opções da OVHcloud mudam. Confirma sempre no site deles antes de pagar.
+Este guia não substitui o apoio deles: se algum ecrã for diferente, usa o chat ou o telefone da OVHcloud.
+
+
+PARTE 1. ESCOLHER E COMPRAR (www.ovhcloud.com/pt)
+-------------------------------------------------
+1. Domínio .pt
+   - Pede o NIF do titular. Convém que seja o do Fábio ou da empresa dele, não o teu.
+   - Anota o preço de RENOVAÇÃO, não só o do primeiro ano.
+   - O alojamento gratuito de 100 MB que vem com o domínio NÃO serve para este caso, porque não inclui base de dados.
+
+2. Alojamento web (plano pago)
+   - Na página "Alojamento web", escolhe o plano mais barato que cumpra TODOS estes pontos:
+       * inclui pelo menos 1 base de dados MySQL;
+       * suporta PHP (qualquer versão 7.4 ou superior);
+       * inclui certificado SSL (HTTPS);
+       * dá acesso por FTP.
+   - Se tiveres dúvidas, pergunta ao chat da OVHcloud: "Este plano inclui MySQL, PHP, SSL e FTP?"
+
+
+PARTE 2. LIGAR O DOMÍNIO AO ALOJAMENTO
+--------------------------------------
+1. Área de Cliente OVHcloud → Web Cloud → Alojamentos → o teu plano → separador "Multisite".
+2. Adiciona o domínio e usa a pasta raiz "www" (é a pasta que o mundo vê).
+3. Ativa o SSL (HTTPS) para o domínio. Se o plano oferecer certificado Let's Encrypt, é grátis.
+4. O DNS pode demorar de alguns minutos a algumas horas a propagar.
+
+
+PARTE 3. CRIAR A BASE DE DADOS
+------------------------------
+1. No teu alojamento → separador "Bases de dados" → Criar uma base de dados.
+2. Anota os 4 dados que a OVHcloud mostra:
+       servidor (host), nome da base, utilizador, palavra-passe.
+3. Abre o phpMyAdmin a partir do painel (separador Bases de dados → a tua base → "Aceder ao phpMyAdmin").
+4. No phpMyAdmin: escolhe a tua base → separador "Importar" → seleciona o ficheiro database.sql desta pasta → Executar.
+   Deve aparecer a tabela "pedidos".
+
+
+PARTE 4. CONFIGURAR O SITE
+--------------------------
+1. Na pasta api/, copia "config.example.php" e chama à cópia "config.php".
+2. Abre o config.php e preenche:
+       db_host, db_name, db_user, db_pass (os 4 dados da Parte 3);
+       sal (escreve um texto aleatório e comprido, 30+ caracteres).
+3. Palavra-passe do painel:
+       a) envia primeiro os ficheiros (Parte 5);
+       b) abre  https://o-teu-dominio.pt/admin/gerar-hash.php  e escolhe uma palavra-passe;
+       c) copia o texto gerado para "admin_hash" no config.php (no servidor, por FTP);
+       d) APAGA o ficheiro admin/gerar-hash.php do servidor.
+4. Substitui SEU-DOMINIO.pt pelo domínio real nestes ficheiros: index.html (linha canonical),
+   robots.txt e sitemap.xml. (Se me disseres o domínio, faço isto por ti.)
+5. Preenche os campos [entre parênteses retos e amarelos] em privacidade.html:
+   responsável, NIF, morada, e-mail, data e prazo de conservação. Mostra o texto a quem trate da parte legal.
+
+
+PARTE 5. ENVIAR OS FICHEIROS (FTP)
+----------------------------------
+1. Instala o FileZilla (gratuito). Os dados FTP estão na Área de Cliente OVHcloud, no teu alojamento → separador "FTP - SSH".
+2. Envia o CONTEÚDO desta pasta para a pasta "www" do servidor.
+3. NÃO envies: a pasta .git, o database.sql e este guia.
+4. Confirma que o config.php foi enviado e que o index.html está dentro de www (não numa subpasta).
+
+
+PARTE 6. TESTAR (muito importante)
+----------------------------------
+1. Abre o site em https://o-teu-dominio.pt (deve ter o cadeado).
+2. Preenche o formulário com um pedido de teste e carrega em "Pedir avaliação gratuita".
+   Tem de abrir o WhatsApp com a mensagem escrita.
+3. Abre https://o-teu-dominio.pt/admin/, entra com a palavra-passe e confirma que o pedido de teste aparece.
+4. Se o pedido NÃO aparecer: o WhatsApp abre na mesma, mas a gravação falhou. Verifica:
+       - os dados em api/config.php;
+       - se a tabela "pedidos" existe;
+       - o registo de erros do alojamento (Área de Cliente → Estatísticas e logs).
+5. Experimenta também no telemóvel.
+
+
+PARTE 7. GOOGLE
+---------------
+1. Google Search Console (search.google.com/search-console):
+       - adiciona o domínio e verifica-o (a OVHcloud permite pôr o registo TXT no DNS);
+       - submete o sitemap: https://o-teu-dominio.pt/sitemap.xml.
+2. Google Business Profile (business.google.com):
+       - cria o perfil do Fábio como consultor imobiliário, com a morada do escritório RE/MAX Prime e o site;
+       - é o que mais ajuda nas pesquisas locais ("consultor imobiliário Amadora").
+3. Aparecer nos resultados demora de dias a semanas. É normal.
+
+
+PARTE 8. GITHUB
+---------------
+- O ficheiro .gitignore já impede que o api/config.php vá para o GitHub. Nunca o removas.
+- Atualizar o repositório: git add . / git commit -m "mensagem" / git push origin main.
+- Para atualizar o site, volta a enviar por FTP os ficheiros alterados.
+
+
+PARTE 9. ANTES DE DIVULGAR
+--------------------------
+[ ] Descarregar as 4 fotos do imóvel (estão ligadas ao site lovable.app) para assets/img/ e trocar os links no index.html.
+[ ] Trocar também a imagem og:image por uma que esteja no teu domínio.
+[ ] Preencher a política de privacidade.
+[ ] Email de contacto no site (hoje aparece "A indicar").
+[ ] Classe energética e referência do imóvel (hoje "A confirmar").
+[ ] Idealmente, guardar os tipos de letra no próprio site em vez de usar o Google Fonts (privacidade).
+
+
+MANUTENÇÃO
+----------
+- Renovar o domínio e o alojamento antes de expirarem (ativa a renovação automática e um e-mail de aviso).
+- Exporta os pedidos em CSV no painel de vez em quando.
+- Apaga os pedidos antigos quando passar o prazo definido na política de privacidade.
+- Mantém a versão do PHP atualizada no painel da OVHcloud.
